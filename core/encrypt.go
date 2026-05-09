@@ -2,16 +2,16 @@ package core
 
 import (
 	"crypto/rand"
-	"fmt"
 	"os"
 
+	"com.gosafe/utils"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-func EncryptFile(srcPath string, c *Config) error {
+func EncryptFile(filePath string, c *Config) error {
 	key := deriveKey(c.Password)
 
-	plain, err := os.ReadFile(srcPath)
+	plain, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -23,6 +23,13 @@ func EncryptFile(srcPath string, c *Config) error {
 
 	encrypted := secretbox.Seal(nonce[:], plain, &nonce, key)
 
-	dstPath := fmt.Sprintf("%s.enc", srcPath)
-	return os.WriteFile(dstPath, encrypted, 0600)
+	dstPath := utils.GetEncryptPath(filePath, c.Password, !c.KeepOriginal)
+	err = os.WriteFile(dstPath, encrypted, 0600)
+	if err != nil {
+		return err
+	}
+	if !c.KeepOriginal {
+		return os.Remove(filePath)
+	}
+	return nil
 }

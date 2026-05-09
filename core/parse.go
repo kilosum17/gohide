@@ -15,6 +15,7 @@ type Config struct {
 	Rename            bool
 	TestMode          bool
 	IgnoreHiddenFiles bool
+	KeepOriginal      bool
 	MaxDepth          int
 	Password          string
 	IgnorePattern     string
@@ -27,7 +28,7 @@ func ParseArgs() *Config {
 		return nil
 	}
 
-	conf := Config{Rename: true, IgnoreHiddenFiles: true}
+	conf := Config{Rename: true, IgnoreHiddenFiles: true, MaxDepth: 3}
 	args := os.Args[1:]
 
 	for i := 0; i < len(args); i++ {
@@ -88,6 +89,8 @@ func parseShorthand(s string, conf *Config) {
 			conf.TestMode = true
 		case 'h':
 			conf.IgnoreHiddenFiles = false
+		case 'k':
+			conf.KeepOriginal = true
 		}
 	}
 }
@@ -109,10 +112,12 @@ func printUsage() {
 	fmt.Println("  n : No rename")
 	fmt.Println("  t : Run In test mode")
 	fmt.Println("  h : Include hidden files & directories")
+	fmt.Println("  k : Keep original files after encryption or descryption")
 
 	fmt.Println("\nOptions:")
 	fmt.Println("  -i [pattern] : Include pattern")
 	fmt.Println("  -g [pattern] : Ignore pattern")
 	fmt.Println("  -p [password]: Provide password (insecure: shows in history)")
-	fmt.Println("  -m [depth]: Provide max-recursive depth, defailt is 3")
+	fmt.Println("  -m [depth]   : Provide max-recursive depth, default is 3")
+	fmt.Println()
 }

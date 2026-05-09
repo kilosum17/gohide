@@ -1,4 +1,6 @@
 build
 *.zip
+*.enc
+*.test
 *.zip.enc
 __debug_

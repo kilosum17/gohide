@@ -50,3 +50,11 @@ func Ternary[T any](cond bool, a, b T) T {
 		return b
 	}
 }
+
+func PasswordToKey(password string) int {
+	key := 0
+	for _, r := range password {
+		key += int(r)
+	}
+	return key
+}

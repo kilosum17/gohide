@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 
 	"com.gosafe/utils"
@@ -9,6 +11,9 @@ import (
 
 func Run() error {
 	c := ParseArgs()
+	if c == nil {
+		os.Exit(1)
+	}
 
 	if c.Verbose {
 		fmt.Printf("Mode: Encrypt=%v, Decrypt=%v, Zip=%v, Rename=%v\n",
@@ -26,6 +31,8 @@ func Run() error {
 
 	actionName := utils.Ternary(c.Encrypt, "Encrypt", "Decrypt")
 	errs_count := 0
+	file_count := 0
+	skipped_count := 0
 
 	var wg sync.WaitGroup
 	// Limit concurrency to 10 files at a time to avoid crashing the OS
@@ -35,6 +42,21 @@ func Run() error {
 	var mu sync.Mutex
 
 	for file := range GetFiles(c) {
+		if c.Decrypt && !strings.HasSuffix(file, utils.EncExtension) {
+			if c.Verbose {
+				fmt.Printf("[Skipping] %s not an encrypted file\n", file)
+			}
+			skipped_count++
+			continue
+		}
+		if c.Encrypt && strings.HasSuffix(file, utils.EncExtension) {
+			if c.Verbose {
+				fmt.Printf("[Skipping] %s already an encrypted file\n", file)
+			}
+			skipped_count++
+			continue
+		}
+
 		if c.TestMode {
 			fmt.Printf("[TEST] Would %s: %s\n", actionName, file)
 			continue
@@ -57,12 +79,17 @@ func Run() error {
 				if c.Verbose {
 					fmt.Printf("Error processing %s: %v\n", f, err)
 				}
+			} else {
+				mu.Lock()
+				file_count++
+				mu.Unlock()
 			}
 		}(file)
 	}
 
 	wg.Wait()
 
+	fmt.Printf("Run %s, All files: %d, Success: %d, Skipped: %d \n", actionName, file_count+skipped_count, file_count, skipped_count)
 	if errs_count > 0 {
 		fmt.Printf("%s completed with %d errors\n", actionName, errs_count)
 	}

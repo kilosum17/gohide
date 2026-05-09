@@ -27,6 +27,13 @@ func DecryptFile(filePath string, c *Config) error {
 		return errors.New("wrong password or corrupt file")
 	}
 
-	dstPath := utils.CreateDecPath(filePath)
-	return os.WriteFile(dstPath, decrypted, 0600)
+	dstPath := utils.GetDecryptPath(filePath, c.Password)
+	err = os.WriteFile(dstPath, decrypted, 0600)
+	if err != nil {
+		return err
+	}
+	if !c.KeepOriginal {
+		return os.Remove(filePath)
+	}
+	return nil
 }
