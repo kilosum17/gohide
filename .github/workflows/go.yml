@@ -31,9 +31,17 @@ jobs:
           GOOS=darwin  GOARCH=amd64 go build -o dist/gohide-darwin-amd64  .
           GOOS=darwin  GOARCH=arm64 go build -o dist/gohide-darwin-arm64  .
 
-      - name: Create Release
+      - name: Get latest tag
+        id: latest-tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+
+      - name: Create or Update Release
+        # This will now use the tag found by the previous step if not triggered by a tag
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.latest-tag.outputs.tag }}
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          
