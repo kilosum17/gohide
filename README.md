@@ -1,107 +1,317 @@
-# GOHIDE
+# 🔐 gohide v2
 
-GOHIDE is a command-line tool for file encryption, decryption, and directory management, written in Go. It offers a simple and efficient way to secure sensitive files and manage hidden directories. The commands are triggered by the first letter of the command name.
+Recursive file encryption for entire directories — fast, simple, and written in Go.
 
-\<br\>
+`gohide` helps encrypt files inside the current working directory recursively, making it useful for backups, archival protection, portable encrypted storage, and bulk file security workflows.
 
------
+> ⚠️ Zip functionality is currently under development in v2.
 
-## 🚀 Getting Started
+---
 
-### Installation
+# ✨ Features
 
-To add the GOHIDE binary to your system's PATH, follow these steps:
+* 🔒 Encrypt files recursively
+* 🔓 Decrypt encrypted files
+* 📂 Recursive directory traversal
+* 🙈 Ignore hidden files/directories by default
+* 🏷️ Optional filename randomization/renaming
+* 🧪 Test mode support
+* 📢 Verbose logging
+* 🎯 Include and ignore patterns
+* 📏 Configurable recursion depth
+* 🖥️ Cross-platform builds (Linux, Windows, macOS)
 
-1.  Download the latest binary for your operating system from the [GitHub releases page](https://www.google.com/search?q=https://github.com/your-username/gohide/releases).
-2.  Move the binary to a directory that is already in your system's PATH. On Unix-like systems, this is often `/usr/local/bin`. You might need administrator privileges.
-    ```sh
-    sudo mv gohide /usr/local/bin/
-    ```
-3.  Ensure the binary is executable.
-    ```sh
-    sudo chmod +x /usr/local/bin/gohide
-    ```
+---
 
-### Building from Source
+# ⚙️ Default Configuration
 
-To build GOHIDE from the source code, you must have [Go](https://golang.org/doc/install) installed on your system.
+```go
+conf := Config{
+    Rename: true,
+    IgnoreHiddenFiles: true,
+    MaxDepth: 3,
+}
+```
 
-1.  Clone the repository:
-    ```sh
-    git clone https://github.com/your-username/gohide.git
-    cd gohide
-    ```
-2.  Build the binary:
-    ```sh
-    go build -o gohide
-    ```
-3.  The executable `gohide` will be created in the current directory. You can then move it to a directory in your PATH as described above.
+Default behavior:
 
-\<br\>
+| Setting                | Default   |
+| ---------------------- | --------- |
+| Rename encrypted files | ✅ Enabled |
+| Ignore hidden files    | ✅ Enabled |
+| Max recursion depth    | `3`       |
 
------
+---
 
-## 📚 Usage
+# 📦 Installation
 
-GOHIDE's commands are single-character abbreviations. The tool will prompt you for a password when required.
+# 🚀 Install Prebuilt Binary (Recommended)
 
-### 🔑 Encryption & Decryption
+Prebuilt binaries are provided through the CI/CD pipeline releases.
 
-  - **Encrypt a file** (`e`): Encrypts a source file and saves it to a destination file.
+## Available Builds
 
-    ```sh
-    gohide e <source_file> <destination_file>
-    ```
+| Platform                    | Binary                     |
+| --------------------------- | -------------------------- |
+| Linux AMD64                 | `gohide-linux-amd64`       |
+| Windows AMD64               | `gohide-windows-amd64.exe` |
+| macOS AMD64                 | `gohide-darwin-amd64`      |
+| macOS ARM64 (Apple Silicon) | `gohide-darwin-arm64`      |
 
-  - **Decrypt a file** (`d`): Decrypts an encrypted file back to its original form.
+## Linux / macOS
 
-    ```sh
-    gohide d <source_file> <destination_file>
-    ```
+```bash
+chmod +x gohide-linux-amd64
+./gohide-linux-amd64
+```
 
-    🚨 **Warning:** If you forget the password, there is no way to recover your data. The encryption is irreversible without the correct password. Also, reusing a similar password will result in a different encryption, ensuring security is not compromised.
+## Windows
 
-### 📁 Directory Operations
+```powershell
+gohide-windows-amd64.exe
+```
 
-  - **Hide a directory** (`h`): Compresses a directory and encrypts the resulting archive.
+---
 
-    ```sh
-    gohide h <source_directory>
-    ```
+# 🛠️ Build From Source
 
-  - **Show a hidden directory** (`s`): Decrypts and extracts a hidden directory archive.
+## Requirements
 
-    ```sh
-    gohide s <source_directory>
-    ```
+* Go 1.22+ recommended
 
-  - **Zip a directory** (`z`): Compresses a directory into a ZIP archive and then encrypts it.
+## Clone Repository
 
-    ```sh
-    gohide z <source_directory> <destination_zip>
-    ```
+```bash
+git clone https://github.com/yourusername/gohide.git
+cd gohide
+```
 
-  - **Check a directory** (`c`): Verifies the integrity of a hidden directory archive.
+## Build
 
-    ```sh
-    gohide c <source_directory>
-    ```
+### Linux AMD64
 
-### 🚫 Ignoring Files
+```bash
+GOOS=linux GOARCH=amd64 go build -o dist/gohide-linux-amd64 .
+```
 
-GOHIDE supports a `.hideignore` file to exclude specific files or directories from the `hide` command.
+### Windows AMD64
 
-  - To ignore a directory named `safe`, add `safe` as a new line in `.hideignore`.
-  - To ignore all files with the `.go` or `.cpp` extensions, add `.go` or `.cpp` on separate lines in the `.hideignore` file.
+```bash
+GOOS=windows GOARCH=amd64 go build -o dist/gohide-windows-amd64.exe .
+```
 
-\<br\>
+### macOS AMD64
 
------
+```bash
+GOOS=darwin GOARCH=amd64 go build -o dist/gohide-darwin-amd64 .
+```
 
-## 🛡️ Security
+### macOS ARM64 (Apple Silicon)
 
-GOHIDE leverages the `crypto` package from the Go standard library to perform all cryptographic operations. This ensures that the encryption and decryption processes are secure and reliable.
+```bash
+GOOS=darwin GOARCH=arm64 go build -o dist/gohide-darwin-arm64 .
+```
 
-## 🏷️ Tags
+---
 
-`go`, `cli`, `encryption`, `decryption`, `hide`, `security`, `utility`, `cryptography`, `command-line-tool`, `github`
+# 🚀 Usage
+
+```bash
+./gohide [commands] [options]
+```
+
+---
+
+# 🎮 Commands
+
+Commands can be combined together.
+
+| Command | Description                                     |
+| ------- | ----------------------------------------------- |
+| `e`     | Encrypt                                         |
+| `d`     | Decrypt                                         |
+| `z`     | Zip result *(WIP)*                              |
+| `v`     | Verbose mode                                    |
+| `n`     | Disable renaming                                |
+| `t`     | Test mode                                       |
+| `h`     | Include hidden files & directories              |
+| `k`     | Keep original files after encryption/decryption |
+
+---
+
+# 🧩 Options
+
+| Option          | Description             |
+| --------------- | ----------------------- |
+| `-i [pattern]`  | Include pattern         |
+| `-g [pattern]`  | Ignore pattern          |
+| `-p [password]` | Provide password        |
+| `-m [depth]`    | Maximum recursive depth |
+
+---
+
+# 🔐 Password Handling
+
+You can provide a password directly:
+
+```bash
+./gohide ev -p mypassword
+```
+
+However:
+
+> ⚠️ Using `-p` is NOT recommended because the password may appear in:
+>
+> * shell history
+> * process lists
+> * terminal logs
+
+If `-p` is omitted, `gohide` securely prompts for the password interactively.
+
+Recommended usage:
+
+```bash
+./gohide ev
+```
+
+---
+
+# 📚 Examples
+
+## 🔒 Encrypt Current Directory
+
+```bash
+./gohide e
+```
+
+---
+
+## 🔒 Encrypt Verbosely
+
+```bash
+./gohide ev
+```
+
+---
+
+## 🔓 Decrypt Files
+
+```bash
+./gohide d
+```
+
+---
+
+## 🔒 Encrypt While Keeping Originals
+
+```bash
+./gohide ek
+```
+
+---
+
+## 🔒 Encrypt Including Hidden Files
+
+```bash
+./gohide eh
+```
+
+---
+
+## 🔒 Encrypt Only `.txt` Files
+
+```bash
+./gohide e -i "*.txt"
+```
+
+---
+
+## 🔒 Ignore `node_modules`
+
+```bash
+./gohide e -g "node_modules"
+```
+
+---
+
+## 🔒 Set Max Recursive Depth
+
+```bash
+./gohide e -m 5
+```
+
+---
+
+## 🧪 Test Mode
+
+```bash
+./gohide etv
+```
+
+Test mode simulates actions without modifying files.
+
+---
+
+# 📂 Current Limitations
+
+* Currently operates on the **Current Working Directory (CWD)** only
+* Source and destination directory selection is still in development
+* Zip/archive support is still being implemented
+* Recursive traversal depth is limited by `MaxDepth`
+
+---
+
+# 🗺️ Planned Features
+
+* 📁 Custom source directory
+* 📤 Custom destination directory
+* 📦 Stable zip/archive support
+* ⚡ Parallel encryption
+* 🧾 Better logging and reporting
+* 🔑 Keyfile support
+* 🧠 Smarter pattern matching
+
+---
+
+# ⚠️ Important Notes
+
+* Always test on backup/sample files first
+* Keep your password safe — encrypted data cannot be recovered without it
+* Recursive encryption can affect many files quickly
+* Be careful when using broad include patterns
+
+---
+
+# ❤️ Contributing
+
+Contributions, bug reports, feature requests, and pull requests are welcome.
+
+---
+
+# 📜 License
+
+MIT License — see the LICENSE file for details.
+
+---
+
+# 🔥 Example Help Output
+
+```text
+Usage: ./gohide [commands] [options]
+
+Commands (can be combined):
+  e : Encrypt
+  d : Decrypt
+  z : Zip result
+  v : Verbose
+  n : No rename
+  t : Run In test mode
+  h : Include hidden files & directories
+  k : Keep original files after encryption or descryption
+
+Options:
+  -i [pattern] : Include pattern
+  -g [pattern] : Ignore pattern
+  -p [password]: Provide password (insecure: shows in history)
+  -m [depth]   : Provide max-recursive depth, default is 3
+```
