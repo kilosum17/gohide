@@ -1,4 +1,4 @@
-package testfold
+package core
 
 import (
 	"crypto/sha256"

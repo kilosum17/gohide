@@ -1,30 +1,28 @@
-package testfold
+package core
 
 import (
 	"crypto/rand"
+	"fmt"
 	"os"
 
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-func EncryptFile(srcPath, dstPath, password string) error {
-	key := deriveKey(password)
+func EncryptFile(srcPath string, c *Config) error {
+	key := deriveKey(c.Password)
 
-	// Read file contents
 	plain, err := os.ReadFile(srcPath)
 	if err != nil {
 		return err
 	}
 
-	// Create nonce
 	var nonce [24]byte
 	if _, err := rand.Read(nonce[:]); err != nil {
 		return err
 	}
 
-	// Encrypt
 	encrypted := secretbox.Seal(nonce[:], plain, &nonce, key)
 
-	// Write encrypted data
+	dstPath := fmt.Sprintf("%s.enc", srcPath)
 	return os.WriteFile(dstPath, encrypted, 0600)
 }

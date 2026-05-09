@@ -1,17 +1,17 @@
-package testfold
+package core
 
 import (
 	"errors"
 	"os"
 
+	"com.gosafe/utils"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-func DecryptFile(srcPath, dstPath, password string) error {
-	key := deriveKey(password)
+func DecryptFile(filePath string, c *Config) error {
+	key := deriveKey(c.Password)
 
-	// Read encrypted data
-	ciphertext, err := os.ReadFile(srcPath)
+	ciphertext, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -19,16 +19,14 @@ func DecryptFile(srcPath, dstPath, password string) error {
 		return errors.New("invalid file")
 	}
 
-	// Extract nonce
 	var nonce [24]byte
 	copy(nonce[:], ciphertext[:24])
 
-	// Decrypt
 	decrypted, ok := secretbox.Open(nil, ciphertext[24:], &nonce, key)
 	if !ok {
 		return errors.New("wrong password or corrupt file")
 	}
 
-	// Write decrypted data
+	dstPath := utils.CreateDecPath(filePath)
 	return os.WriteFile(dstPath, decrypted, 0600)
 }
