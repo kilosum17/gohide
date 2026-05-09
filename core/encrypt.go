@@ -9,7 +9,7 @@ import (
 )
 
 func EncryptFile(filePath string, c *Config) error {
-	key := deriveKey(c.Password)
+	key := utils.DeriveKey(c.Password)
 
 	plain, err := os.ReadFile(filePath)
 	if err != nil {
@@ -23,7 +23,7 @@ func EncryptFile(filePath string, c *Config) error {
 
 	encrypted := secretbox.Seal(nonce[:], plain, &nonce, key)
 
-	dstPath := utils.GetEncryptPath(filePath, c.Password, !c.KeepOriginal)
+	dstPath := utils.GetEncryptPath(filePath, c.Password, c.Rename)
 	err = os.WriteFile(dstPath, encrypted, 0600)
 	if err != nil {
 		return err

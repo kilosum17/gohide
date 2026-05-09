@@ -9,7 +9,7 @@ import (
 )
 
 func DecryptFile(filePath string, c *Config) error {
-	key := deriveKey(c.Password)
+	key := utils.DeriveKey(c.Password)
 
 	ciphertext, err := os.ReadFile(filePath)
 	if err != nil {

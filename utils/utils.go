@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
@@ -37,7 +38,7 @@ func GetPassword() (string, error) {
 			fmt.Println("Passwords din't match")
 		}
 		tries++
-		if tries > 3 {
+		if tries > 2 {
 			return "", errors.New("Getting password failed")
 		}
 	}
@@ -57,4 +58,11 @@ func PasswordToKey(password string) int {
 		key += int(r)
 	}
 	return key
+}
+
+func DeriveKey(password string) *[32]byte {
+	hash := sha256.Sum256([]byte(password))
+	var key [32]byte
+	copy(key[:], hash[:])
+	return &key
 }
